@@ -65,7 +65,7 @@ elif [[ "$line_text" =~ ^([[:alnum:]_./-]+)\(([0-9]+)\) ]]; then
 fi
 
 # Leave copy-mode; if nothing parsed, do nothing further
-tmux send -X cancel 2>/dev/null || true
+# tmux send -X cancel 2>/dev/null || true
 [ -z "$file" ] && exit 0
 
 # Resolve to absolute path
@@ -79,16 +79,17 @@ target_pane=$(tmux list-panes -t "$current_window" -F '#{pane_id} #{@compile-pan
                | awk '$2!="compile"{print $1; exit}')
 [ -z "$target_pane" ] && exit 0
 
-# **Only act if Neovim is running in the target pane**
+# **Only act if Helix is running in the target pane**
 target_cmd=$(tmux display-message -p -t "$target_pane" '#{pane_current_command}')
-if [ "$target_cmd" != "nvim" ]; then
+if [ "$target_cmd" != "hx" ]; then
   exit 0
 fi
 
-# Drive Neovim
+# Drive Helix
 tmux send-keys -t "$target_pane" Escape
 if [ -n "$line" ]; then
-  tmux send-keys -t "$target_pane" ":e +${line} ${full_path}" Enter
+  # tmux send-keys -t "$target_pane" ":e +${line} ${full_path}" Enter
+  tmux send-keys -t "$target_pane" ":e ${full_path}:${line}:${col}" Enter # helix supports col
 else
   tmux send-keys -t "$target_pane" ":e ${full_path}" Enter
 fi

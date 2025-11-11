@@ -22,7 +22,7 @@ get_tmux_option() {
 compile_key=$(get_tmux_option "@compile-mode-key" "C-b")
 recompile_key=$(get_tmux_option "@compile-mode-recompile-key" "C-r")
 kill_key=$(get_tmux_option "@compile-mode-kill-key" "C-k")
-height=$(get_tmux_option "@compile-mode-height" "30%")
+height=$(get_tmux_option "@compile-mode-height" "35%")
 history_file=$(get_tmux_option "@compile-mode-history-file" "$HOME/.tmux-compile-history")
 
 # Export configuration

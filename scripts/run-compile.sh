@@ -51,7 +51,7 @@ current_path="$2"
 
 # Print header with emacs-style compilation mode marker and working directory
 printf '\033[1;36m-*- mode: compilation; default-directory: "%s" -*-\033[0m\n' "$current_path"
-printf '\033[1;36mCompilation started at %s\033[0m\n\n' "$(date +'%a %b %d %H:%M:%S')"
+printf '\033[1;36mCompilation started at %s\033[0m\n\n' "$(date +'%H:%M:%S')"
 
 # Execute the compilation command and capture exit code
 time eval "$compile_cmd"
@@ -60,9 +60,9 @@ exit_code=$?
 # Print footer with appropriate color based on success/failure
 echo
 if [ $exit_code -eq 0 ]; then
-    printf '\033[1;32mCompilation finished at %s\033[0m\n' "$(date +'%a %b %d %H:%M:%S')"
+    printf '\033[1;32mCompilation finished at %s\033[0m\n' "$(date +'%H:%M:%S')"
 else
-    printf '\033[1;31mCompilation exited abnormally with code %d at %s\033[0m\n' $exit_code "$(date +'%a %b %d %H:%M:%S')"
+    printf '\033[1;31mCompilation exited abnormally with code %d at %s\033[0m\n' $exit_code "$(date +'%H:%M:%S')"
 fi
 
 # Keep the pane open so output remains visible for inspection
