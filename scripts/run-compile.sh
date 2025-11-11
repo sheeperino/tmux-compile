@@ -6,7 +6,7 @@
 # saves to history, and provides syntax-highlighted output with timestamps.
 # Handles all pane management and error context preservation.
 
-compile_cmd="$1"
+compile_cmd="$@"
 
 if [ -z "$compile_cmd" ]; then
     exit 0
