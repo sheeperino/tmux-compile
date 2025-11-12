@@ -34,22 +34,16 @@ line_text=$(tmux capture-pane -p -J -t "$current_pane" -S "$cursor_y" -E "$curso
 line_text=$(echo "$line_text" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
 # Match various compiler formats:
-#   --> path:line:col   (Rust)
 #   path:line:col       (Go/TypeScript)
 #   path:line           (Go/TypeScript)
 #   path(line, col)     (Nim)
 #   path(line)          (Nim)
-if [[ "$line_text" =~ ^[[:space:]]*--\>[[:space:]]*([[:alnum:]_./-]+):([0-9]+):([0-9]+) ]]; then
-  # Rust: --> src/main.rs:514:3
-  file="${BASH_REMATCH[1]}"
-  line="${BASH_REMATCH[2]}"
-  col="${BASH_REMATCH[3]}"
-elif [[ "$line_text" =~ ^([[:alnum:]_./-]+):([0-9]+):([0-9]+) ]]; then
+if [[ "$line_text" =~ ([[:alnum:]_./-]+):([0-9]+):([0-9]+) ]]; then
   # Common: src/file.ts:12:3
   file="${BASH_REMATCH[1]}"
   line="${BASH_REMATCH[2]}"
   col="${BASH_REMATCH[3]}"
-elif [[ "$line_text" =~ ^([[:alnum:]_./-]+):([0-9]+)$ ]]; then
+elif [[ "$line_text" =~ ([[:alnum:]_./-]+):([0-9]+) ]]; then
   # Common: src/file.ts:12
   file="${BASH_REMATCH[1]}"
   line="${BASH_REMATCH[2]}"
@@ -58,8 +52,12 @@ elif [[ "$line_text" =~ ^([[:alnum:]_./-]+)\(([0-9]+),[[:space:]]*([0-9]+)\) ]];
   file="${BASH_REMATCH[1]}"
   line="${BASH_REMATCH[2]}"
   col="${BASH_REMATCH[3]}"
-elif [[ "$line_text" =~ ^([[:alnum:]_./-]+)\(([0-9]+)\) ]]; then
+elif [[ "$line_text" =~ ([[:alnum:]_./-]+)\(([0-9]+)\) ]]; then
   # Nim: /path/to/file.nim(47)
+  file="${BASH_REMATCH[1]}"
+  line="${BASH_REMATCH[2]}"
+elif [[ "$line_text" =~ File[[:space:]]\"([[:alnum:]_./-]+)\",[[:space:]]line[[:space:]]([0-9]+) ]]; then
+  # Python: File "/path/to/file.py", line 12
   file="${BASH_REMATCH[1]}"
   line="${BASH_REMATCH[2]}"
 fi
