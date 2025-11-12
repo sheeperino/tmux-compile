@@ -7,6 +7,15 @@
 # Handles all pane management and error context preservation.
 
 compile_cmd="$@"
+# credits: tmux-copycat, NOTE: doesnt work with paths starting with /, but it shouldnt be a problem in mots cases
+search_pattern="(\
+(^|^\.|[[:space:]]|[[:space:]]\.|[[:space:]]\.\.|^\.\.)[[:alnum:]~_-]*/[][[:alnum:]_.#$%&+=/@-]*+:[0-9]+:[0-9]+|\
+(^|^\.|[[:space:]]|[[:space:]]\.|[[:space:]]\.\.|^\.\.)[[:alnum:]~_-]*/[][[:alnum:]_.#$%&+=/@-]*:[0-9]+|\
+(^|^\.|[[:space:]]|[[:space:]]\.|[[:space:]]\.\.|^\.\.)[[:alnum:]~_-]*/[][[:alnum:]_.#$%&+=/@-]*\([0-9]+,[[:space:]]*[0-9]+\)|\
+(^|^\.|[[:space:]]|[[:space:]]\.|[[:space:]]\.\.|^\.\.)[[:alnum:]~_-]*/[][[:alnum:]_.#$%&+=/@-]*\([0-9]+\)|\
+File[[:space:]]\"[[:alnum:]_./-]+\",[[:space:]]line[[:space:]][0-9]+\
+)"
+# search_pattern="^(?!\d+$)(?![a-zA-Z]+$)[a-zA-Z\d]+$"
 
 if [ -z "$compile_cmd" ]; then
     exit 0
@@ -48,6 +57,7 @@ cat > "$wrapper" << 'WRAPPER_EOF'
 #!/usr/bin/env bash
 compile_cmd="$1"
 current_path="$2"
+search_pattern="$3"
 
 # Print header with emacs-style compilation mode marker and working directory
 printf '\033[1;36m[%s] %s\033[0m\n' "$current_path" "$compile_cmd"
@@ -68,6 +78,8 @@ fi
 # Keep the pane open so output remains visible for inspection
 # User must press Enter to close, giving time to navigate errors
 tmux copy-mode -t "$TMUX_PANE" 2>/dev/null || true
+# highlight matches
+tmux send-keys -t "$TMUX_PANE" -X search-backward $search_pattern 2>/dev/null || true
 read -r -p "Press Enter to close..."
 WRAPPER_EOF
 chmod +x "$wrapper"
@@ -75,7 +87,7 @@ chmod +x "$wrapper"
 # Split the current window vertically to create the compile pane
 # The pane is spawned with the wrapper script instead of a shell
 new_pane=$(tmux split-window -t "$current_window" -h -l "$height" -c "$current_path" -P -F '#{pane_id}' \
-    "$wrapper '$compile_cmd' '$current_path'; rm -f '$wrapper'" 2>/dev/null)
+    "$wrapper '$compile_cmd' '$current_path' '$search_pattern'; rm -f '$wrapper'" 2>/dev/null)
 
 # Verify the pane was created successfully
 if [ -z "$new_pane" ]; then
