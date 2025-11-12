@@ -66,7 +66,7 @@ fi
 
 # Leave copy-mode; if nothing parsed, do nothing further
 # tmux send -X cancel 2>/dev/null || true
-[ -z "$file" ] && exit 0
+[ -z "$file" ] && tmux display-message "Invalid pattern" && exit 0
 
 # Resolve to absolute path
 compile_path=$(tmux display-message -p -t "$current_pane" '#{pane_current_path}')
@@ -86,15 +86,14 @@ if [ "$target_cmd" != "hx" ]; then
 fi
 
 # Drive Helix
-tmux send-keys -t "$target_pane" Escape
 if [ -n "$line" ]; then
-  # tmux send-keys -t "$target_pane" ":e +${line} ${full_path}" Enter
-  tmux send-keys -t "$target_pane" ":e ${full_path}:${line}:${col}" Enter # helix supports col
+  echo "${full_path}:${line}:${col}" | xsel --trim >/dev/null || true
+  tmux send-keys -t "$target_pane" F7 # helix supports col
 else
   tmux send-keys -t "$target_pane" ":e ${full_path}" Enter
 fi
 
-# Switch focus to the Neovim pane
+# Switch focus to the Helix pane
 tmux select-pane -t "$target_pane" 2>/dev/null || true
 
 exit 0
