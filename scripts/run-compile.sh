@@ -50,8 +50,8 @@ compile_cmd="$1"
 current_path="$2"
 
 # Print header with emacs-style compilation mode marker and working directory
-printf '\033[1;36m-*- mode: compilation; default-directory: "%s" -*-\033[0m\n' "$current_path"
-printf '\033[1;36mCompilation started at %s\033[0m\n\n' "$(date +'%H:%M:%S')"
+printf '\033[1;36m[%s] %s\033[0m\n' "$current_path" "$compile_cmd"
+printf '\033[1;36mCompilation started at %s\033[0m\n' "$(date +'%H:%M:%S')"
 
 # Execute the compilation command and capture exit code
 time eval "$compile_cmd"
@@ -74,7 +74,7 @@ chmod +x "$wrapper"
 
 # Split the current window vertically to create the compile pane
 # The pane is spawned with the wrapper script instead of a shell
-new_pane=$(tmux split-window -t "$current_window" -v -l "$height" -c "$current_path" -P -F '#{pane_id}' \
+new_pane=$(tmux split-window -t "$current_window" -h -l "$height" -c "$current_path" -P -F '#{pane_id}' \
     "$wrapper '$compile_cmd' '$current_path'; rm -f '$wrapper'" 2>/dev/null)
 
 # Verify the pane was created successfully
