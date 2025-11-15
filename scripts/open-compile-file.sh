@@ -79,7 +79,7 @@ target_pane=$(tmux list-panes -t "$current_window" -F '#{pane_id} #{@compile-pan
 
 # **Only act if Helix is running in the target pane**
 target_cmd=$(tmux display-message -p -t "$target_pane" '#{pane_current_command}')
-if [ "$target_cmd" != "hx" ]; then
+if [ "$target_cmd" != "hx" && "$target_cmd" != "yazi" ]; then
   exit 0
 fi
 
