@@ -83,6 +83,7 @@ pane_cmd="$wrapper '$compile_cmd' '$current_path' '$search_pattern'; rm -f '$wra
 
 # If compile pane exists, re-run in place
 if [ -n "$compile_pane" ]; then
+    tmux clear-history -t "$compile_pane"
     tmux respawn-pane -k -t "$compile_pane" "$pane_cmd" 2>/dev/null
     new_pane="$compile_pane"
 # Otherwise create a new split
